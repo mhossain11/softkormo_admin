@@ -1,0 +1,94 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------ helpers
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Reads `admins/{uid}` for the *currently signed in* user. The short
+    // circuit in `isAdmin()` guarantees this only runs for signed in users.
+    function activeAdmin() {
+      let profile = get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+      return profile.active == true
+        && profile.role in ['admin', 'super_admin'];
+    }
+
+    function isAdmin() {
+      return signedIn() && activeAdmin();
+    }
+
+    function published() {
+      return resource.data.published == true;
+    }
+
+    function active() {
+      return resource.data.active == true;
+    }
+
+    // ------------------------------------------------------------------ admins
+    // Profiles are provisioned through the Firebase console / Admin SDK.
+    // Passwords are never stored in Firestore.
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------- contacts
+    // The public website may only append leads. Nobody but an admin can read,
+    // change or delete them.
+    match /contacts/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('.*@.+')
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.status == 'new'
+        && request.resource.data.keys().hasOnly([
+             'name', 'email', 'phone', 'service', 'message', 'status', 'source', 'createdAt'
+           ]);
+    }
+
+    // --------------------------------------------------------------- projects
+    // The website only ever queries published entries, so public reads are
+    // limited to `published == true`.
+    match /projects/{id} {
+      allow read: if isAdmin() || published();
+      allow write: if isAdmin();
+    }
+
+    // --------------------------------------------------------------- services
+    match /services/{id} {
+      allow read: if isAdmin() || published();
+      allow write: if isAdmin();
+    }
+
+    // --------------------------------------------------------------- packages
+    match /packages/{id} {
+      allow read: if isAdmin() || active();
+      allow write: if isAdmin();
+    }
+
+    // ----------------------------------------------------------- testimonials
+    match /testimonials/{id} {
+      allow read: if isAdmin() || published();
+      allow write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------- settings
+    // Company profile, logo and contact details are public by definition.
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

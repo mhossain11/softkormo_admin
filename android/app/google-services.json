@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "228351780401",
+    "firebase_url": "https://softkormo-8ea9c-default-rtdb.firebaseio.com",
+    "project_id": "softkormo-8ea9c",
+    "storage_bucket": "softkormo-8ea9c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228351780401:android:faeb7ba8e3bf09317bd710",
+        "android_client_info": {
+          "package_name": "com.example.softkormo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOoJGhK6UuWjCO26ODXFNTwGlt_lmhiuI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228351780401:android:98d00af0a12703ff7bd710",
+        "android_client_info": {
+          "package_name": "com.softkormo.admin.softkormoadmin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOoJGhK6UuWjCO26ODXFNTwGlt_lmhiuI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
